@@ -107,8 +107,6 @@ class u2d2Control():
         with Listener(on_press=self.on_press) as listener:
             getpass.getpass("")
             listener.join()
-            while True:
-                time.sleep(1)
 
 if __name__ == '__main__':
 
