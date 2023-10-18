@@ -13,7 +13,7 @@ PROTOCOL_1_INFOS =  {'TORQUE_ADDR': 24, 'LED_ADDR': 25 , 'GOAL_POS_ADDR': 30, 'S
 SPEED = (110).to_bytes(2, byteorder='little')
 POS_INCREMENT = 30
 
-MAP_INPUT_TO_MOTOR = [['w','s'],['e','d'],['r','f'],['t','g'],['y','h'],['u','j']]
+MAP_INPUT_TO_MOTOR = [['w','s'],['d','e'],['f','r'],['g','t'],['y','h'],['u','j']]
 MIN_MAX = [[0,1023],[120,890],[10,1000],[200,810],[0,1023],[500,850]]
 
 class u2d2Control():
