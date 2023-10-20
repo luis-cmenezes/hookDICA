@@ -11,14 +11,15 @@ DEVICENAME = '/dev/ttyUSB0'
 PROTOCOL_1_INFOS =  {'TORQUE_ADDR': 24, 'LED_ADDR': 25 , 'GOAL_POS_ADDR': 30, 'SPEED_ADDR': 32}
 
 SPEED = (110).to_bytes(2, byteorder='little')
-POS_INCREMENT = 30
 
 MAP_INPUT_TO_MOTOR = [['w','s'],['d','e'],['f','r'],['g','t'],['y','h'],['u','j']]
-MIN_MAX = [[0,1023],[120,890],[10,1000],[200,810],[0,1023],[500,850]]
+MIN_MAX = [[0,1023],[120,890],[10,1000],[200,810],[0,1023],[500,740]]
 
 class u2d2Control():
 
-    def __init__(self):        
+    def __init__(self):       
+        
+        self.posIncrement = 32 
         self.startComm()
 
         self.enableTorque() 
@@ -33,6 +34,7 @@ class u2d2Control():
 
         self.velocityGroup.txPacket()
         self.data2motors()
+
 
     def startComm(self):
         self.portHandler = PortHandler(DEVICENAME)
@@ -62,7 +64,6 @@ class u2d2Control():
             for motor_id in range(6):
                 
                 self.packetHandler.write1ByteTxOnly(self.portHandler, motor_id, PROTOCOL_1_INFOS['TORQUE_ADDR'], True)
-                self.packetHandler.write1ByteTxOnly(self.portHandler, motor_id, PROTOCOL_1_INFOS['LED_ADDR'], True)
 
     def data2motors(self):
 
@@ -84,13 +85,29 @@ class u2d2Control():
                 self.motorsCurrentPosition = [512,415,785,721,512,512]
                 self.data2motors()
                 return
+            
+            if key.char == 'p':
+                if self.posIncrement == 32:
+                    
+                    self.posIncrement = 8
+
+                    for _ in range(3):
+                        for motor_id in range(6):
+                            self.packetHandler.write1ByteTxOnly(self.portHandler, motor_id, PROTOCOL_1_INFOS['LED_ADDR'], True)
+                else:
+                    self.posIncrement = 32
+
+                    for _ in range(3):
+                        for motor_id in range(6):
+                            self.packetHandler.write1ByteTxOnly(self.portHandler, motor_id, PROTOCOL_1_INFOS['LED_ADDR'], False)
+
 
             for l_id, inputs in enumerate(MAP_INPUT_TO_MOTOR):
                 if key.char in inputs:
                     motor_id = l_id
                     direction = -1 if inputs.index(key.char) else 1
 
-                    self.motorsCurrentPosition[motor_id] += direction*POS_INCREMENT
+                    self.motorsCurrentPosition[motor_id] += direction*self.posIncrement
                     self.motorsCurrentPosition[motor_id] = max(self.motorsCurrentPosition[motor_id], MIN_MAX[motor_id][0])
                     self.motorsCurrentPosition[motor_id] = min(self.motorsCurrentPosition[motor_id], MIN_MAX[motor_id][1])
 
